@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+  namespace: dev
+spec:
+  type: NodePort  # ✅ Cambiado a NodePort para acceso externo
+  selector:
+    app: backend
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
+      nodePort: 30000  # Puerto fijo para acceso desde el frontend

@@ -4,7 +4,10 @@ metadata:
   name: backend-config
   namespace: dev
 data:
-  DB_HOST: "mysql-service"  # Nombre del servicio MySQL
+  DB_HOST: "mysql-service"  # ✅ Correcto: nombre del servicio MySQL
   DB_NAME: "atalesdb"
   PORT: "3000"
   EMAIL_FROM: "atalmendoza03@gmail.com"
+  FRONTEND_HOST: "MINIKUBE_IP_PLACEHOLDER"  # Se reemplazará automáticamente
+  FRONTEND_PORT: "30080"
+  NODE_ENV: "production"

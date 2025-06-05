@@ -4,11 +4,11 @@ metadata:
   name: backend-service
   namespace: dev
 spec:
-  type: NodePort  # ✅ Cambiado a NodePort para acceso externo
+  type: NodePort
   selector:
     app: backend
   ports:
     - protocol: TCP
       port: 3000
       targetPort: 3000
-      nodePort: 30000  # Puerto fijo para acceso desde el frontend
+      nodePort: 30000  # Puerto externo para acceder al backend

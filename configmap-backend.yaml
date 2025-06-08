@@ -8,6 +8,6 @@ data:
   DB_NAME: "atalesdb"
   PORT: "3000"
   EMAIL_FROM: "atalmendoza03@gmail.com"
-  FRONTEND_HOST: "MINIKUBE_IP_PLACEHOLDER"  # Se reemplazará automáticamente
+  FRONTEND_HOST: "frontend-service"  # Se reemplazará automáticamente
   FRONTEND_PORT: "30080"
   NODE_ENV: "production"

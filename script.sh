@@ -1,105 +1,85 @@
 #!/bin/bash
 
-# Script para desplegar el proyecto completo en Minikube
+# 🚀 Script de Despliegue (CI + CD) – infrastructura-Atales
 
-set -e  # Salir si algún comando falla
+set -e  # Detener si algún comando falla
 
-echo "🚀 Iniciando despliegue en Minikube..."
+echo "🌐 Iniciando despliegue del entorno dev en Minikube..."
 
 # 1. Verificar que Minikube esté corriendo
 if ! minikube status > /dev/null 2>&1; then
-    echo "❌ Minikube no está corriendo. Iniciando..."
+    echo "🟡 Minikube no está corriendo. Iniciando..."
     minikube start
 fi
 
-# 2. Obtener la IP de Minikube
-MINIKUBE_IP=$(minikube ip)
-echo "🔍 IP de Minikube: $MINIKUBE_IP"
-
-# 3. Configurar Docker para usar el registro de Minikube
+# 2. Establecer Docker env para usar imágenes locales
 eval $(minikube docker-env)
 
-# 4. Actualizar ConfigMap con la IP real
-sed "s/MINIKUBE_IP_PLACEHOLDER/$MINIKUBE_IP/g" k8s/configmap-backend.yaml > k8s/configmap-backend-temp.yaml
+# 3. Obtener IP de Minikube (solo para referencia)
+MINIKUBE_IP=$(minikube ip)
+echo "📌 IP de Minikube: $MINIKUBE_IP"
 
-# 5. Crear archivo de configuración dinámico para el frontend
-cat > proyecto-Atales/frontend/js/config.js << EOF
-// Configuración automática para Minikube
-const API_CONFIG = {
-    getBaseURL: function() {
-        const hostname = window.location.hostname;
-        
-        // Si estamos en localhost (desarrollo)
-        if (hostname === 'localhost' || hostname === '127.0.0.1') {
-            return 'http://localhost:3000';
-        }
-        
-        // Si estamos en Minikube
-        return 'http://' + hostname + ':30000';
-    }
-};
+# 4. Habilitar Ingress si no está activo
+if ! minikube addons list | grep ingress | grep -q enabled; then
+    echo "⚙️ Habilitando addon de Ingress en Minikube..."
+    minikube addons enable ingress
+else
+    echo "✅ Ingress ya está habilitado en Minikube"
+fi
 
-const API_BASE_URL = API_CONFIG.getBaseURL();
-window.API_BASE_URL = API_BASE_URL;
+# 5. Verificar y agregar entrada a /etc/hosts si falta
+HOST_ENTRY="127.0.0.1 atales.local"
+if ! grep -q "atales.local" /etc/hosts; then
+    echo "🔧 Agregando atales.local a /etc/hosts (requiere permisos sudo)"
+    echo "$HOST_ENTRY" | sudo tee -a /etc/hosts > /dev/null
+else
+    echo "✅ atales.local ya está presente en /etc/hosts"
+fi
 
-console.log('🔧 API Base URL:', API_BASE_URL);
-EOF
-
-# 6. Construir imágenes Docker
+# 6. Construir imágenes Docker para backend y frontend
 echo "🔨 Construyendo imágenes Docker..."
 
-# Backend
-cd proyecto-Atales
+cd ../proyecto-Atales
+
+echo "📦 Backend:"
 docker build -t backend-atales:latest .
 
-# Frontend  
+echo "📦 Frontend:"
 cd frontend
 docker build -t frontend-atales:latest .
-cd ..
+cd ../..
 
-# 7. Aplicar manifiestos de Kubernetes en orden
-echo "⚙️ Desplegando en Kubernetes..."
+cd infrastructura-Atales
 
-kubectl apply -f ../k8s/namespace-dev.yaml
-kubectl apply -f ../k8s/secret-backend.yaml
-kubectl apply -f ../k8s/configmap-backend-temp.yaml
-kubectl apply -f ../k8s/pvc-mysql.yaml
+# 7. Aplicar manifiestos de Kubernetes
+echo "📦 Aplicando manifiestos de Kubernetes..."
 
-# MySQL primero
-kubectl apply -f ../k8s/deployment-mysql.yaml
-kubectl apply -f ../k8s/service-mysql.yaml
+kubectl apply -f namespace-dev.yaml
+kubectl apply -n dev -f secret-backend.yaml
+kubectl apply -n dev -f configmap-backend.yaml
+kubectl apply -n dev -f pvc-mysql.yaml
+kubectl apply -n dev -f service-mysql.yaml
+kubectl apply -n dev -f deployment-mysql.yaml
+kubectl apply -n dev -f service-backend.yaml
+kubectl apply -n dev -f deployment-backend.yaml
+kubectl apply -n dev -f service-frontend.yaml
+kubectl apply -n dev -f deployment-frontend.yaml
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.11.0/cert-manager.yaml
+kubectl apply -f letsencrypt-prod.yaml
+kubectl apply -n dev -f ingress.yaml
 
-echo "⏳ Esperando que MySQL esté listo..."
-kubectl wait --for=condition=ready pod -l app=mysql -n dev --timeout=180s
 
-# Backend
-kubectl apply -f ../k8s/deployment-backend.yaml
-kubectl apply -f ../k8s/service-backend.yaml
-kubectl apply -f ../k8s/service-backend.yaml
+echo "✅ Todos los recursos fueron aplicados correctamente."
 
-echo "⏳ Esperando que el backend esté listo..."
-kubectl wait --for=condition=ready pod -l app=backend -n dev --timeout=120s
-
-# Frontend
-kubectl apply -f ../k8s/deployment-frontend.yaml
-kubectl apply -f ../k8s/service-frontend.yaml
-
-echo "⏳ Esperando que el frontend esté listo..."
-kubectl wait --for=condition=ready pod -l app=frontend -n dev --timeout=120s
-
-# 8. Limpiar archivos temporales
-rm -f ../k8s/configmap-backend-temp.yaml
-
-# 9. Mostrar información de acceso
-echo "✅ ¡Despliegue completado!"
 echo ""
-echo "📋 Información de acceso:"
-echo "   🌐 Frontend: http://$MINIKUBE_IP:30080"
-echo "   🔧 Backend:  http://$MINIKUBE_IP:30000"
+echo "📂 Recursos actuales en el namespace dev:"
+kubectl get all -n dev
+
 echo ""
-echo "🔍 Comandos útiles:"
-echo "   kubectl get pods -n dev"
-echo "   kubectl logs -f deployment/backend -n dev"
-echo "   kubectl logs -f deployment/frontend -n dev"
+echo "🌐 Accedé a tu aplicación en el navegador:"
+echo "   https://atales.local"
+
 echo ""
-echo "🚀 Accede a tu aplicación en: http://$MINIKUBE_IP:30080"
+echo "ℹ️ Importante: ejecutá esto en otra terminal para habilitar la red de Ingress:"
+echo "   minikube tunnel"
+

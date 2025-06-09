@@ -62,6 +62,7 @@ docker build -t frontend-atales:latest "$FRONTEND_PATH"
 
 # 7. Aplicar manifiestos con Kustomize
 echo -e "${GREEN}📦 Aplicando manifiestos Kubernetes (overlay dev)...${NC}"
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.14.3/cert-manager.yaml
 kubectl apply -k overlays/dev
 
 # 8. Ver recursos desplegados

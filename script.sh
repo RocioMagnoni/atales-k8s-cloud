@@ -51,23 +51,10 @@ cd ../..
 
 cd infrastructura-Atales
 
-# 7. Aplicar manifiestos de Kubernetes
-echo "📦 Aplicando manifiestos de Kubernetes..."
+# 7. Aplicar manifiestos de Kubernetes usando Kustomize
+echo "📦 Aplicando manifiestos de Kubernetes con Kustomize..."
 
-kubectl apply -f namespace-dev.yaml
-kubectl apply -n dev -f secret-backend.yaml
-kubectl apply -n dev -f configmap-backend.yaml
-kubectl apply -n dev -f pvc-mysql.yaml
-kubectl apply -n dev -f service-mysql.yaml
-kubectl apply -n dev -f deployment-mysql.yaml
-kubectl apply -n dev -f service-backend.yaml
-kubectl apply -n dev -f deployment-backend.yaml
-kubectl apply -n dev -f service-frontend.yaml
-kubectl apply -n dev -f deployment-frontend.yaml
-kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.11.0/cert-manager.yaml
-kubectl apply -f letsencrypt-prod.yaml
-kubectl apply -n dev -f ingress.yaml
-
+kubectl apply -k overlays/dev
 
 echo "✅ Todos los recursos fueron aplicados correctamente."
 
@@ -82,4 +69,3 @@ echo "   https://atales.local"
 echo ""
 echo "ℹ️ Importante: ejecutá esto en otra terminal para habilitar la red de Ingress:"
 echo "   minikube tunnel"
-

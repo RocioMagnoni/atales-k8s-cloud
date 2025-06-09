@@ -9,4 +9,3 @@ resources:
   - secret-backend.yaml
   - configmap-backend.yaml
   - hpa-backend.yaml
-  - ingress.yaml

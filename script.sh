@@ -36,7 +36,7 @@ else
 fi
 
 # 5. Verificar /etc/hosts
-HOST_ENTRY="127.0.0.1 atales.local"
+HOST_ENTRY="$(minikube ip) atales.local"
 if ! grep -q "atales.local" /etc/hosts; then
   echo -e "${YELLOW}🔧 Agregando entrada a /etc/hosts (requiere sudo)...${NC}"
   if echo "$HOST_ENTRY" | sudo tee -a /etc/hosts > /dev/null; then

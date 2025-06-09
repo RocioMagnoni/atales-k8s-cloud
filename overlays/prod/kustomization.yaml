@@ -3,6 +3,9 @@ namespace: prod
 resources:
   - ../../base
   - namespace.yaml
+
+  - letsencrypt-prod.yaml
+
+patchesStrategicMerge:
   - configmap-backend.yaml
   - ingress.yaml
-  - letsencrypt-prod.yaml

@@ -1,7 +1,7 @@
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
-  name: letsencrypt-prod
+  name: letsencrypt-test
 spec:
   acme:
     # Servidor de Let's Encrypt (usar staging para pruebas)
@@ -9,7 +9,7 @@ spec:
     #  para notificaciones de expiración
     email: atalmendoza03@gmail.com
     privateKeySecretRef:
-      name: letsencrypt-prod
+      name: letsencrypt-test
     solvers:
     - http01:
         ingress:

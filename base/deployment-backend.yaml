@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: juan95kruz/backend-atales:v1.0.0
+          image: luca011/backend-atales:lastest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000

@@ -24,8 +24,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: backend-atales:latest
-          imagePullPolicy: Never
+          image: kennethreitz/httpbin
           ports:
             - containerPort: 3000
               name: http

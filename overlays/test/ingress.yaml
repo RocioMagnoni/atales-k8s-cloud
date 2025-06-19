@@ -10,7 +10,7 @@ spec:
   tls:
     - hosts:
         - atales.local
-      secretName: atales-dev-tls
+      secretName: atales-test-tls
   rules:
     - host: atales.local
       http:

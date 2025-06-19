@@ -6,6 +6,5 @@ resources:
   - service-frontend.yaml
   - service-mysql.yaml
   - pvc-mysql.yaml
-  - secret-backend.yaml
   - configmap-backend.yaml
   - hpa-backend.yaml

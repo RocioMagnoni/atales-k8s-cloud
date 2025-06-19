@@ -16,7 +16,8 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: nginx:alpine
+          image: juan95kruz/frontend-atales:v1.0.0
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
           resources:

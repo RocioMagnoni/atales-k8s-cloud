@@ -1,85 +1,77 @@
 #!/bin/bash
 
-# 🚀 Script de Despliegue (CI + CD) – infrastructura-Atales
+# 🚀 Script de Despliegue Local – entorno dev (Minikube + Docker local + Kustomize)
+set -e  # Detener ejecución ante errores
 
-set -e  # Detener si algún comando falla
+# 🎨 Colores para mensajes bonitos en consola
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+NC='\033[0m' # Sin color
 
-echo "🌐 Iniciando despliegue del entorno dev en Minikube..."
+echo -e "${GREEN}🌐 Iniciando despliegue del entorno dev en Minikube...${NC}"
 
-# 1. Verificar que Minikube esté corriendo
+# 1. Verificar si Minikube está activo
 if ! minikube status > /dev/null 2>&1; then
-    echo "🟡 Minikube no está corriendo. Iniciando..."
-    minikube start
+  echo -e "${YELLOW}🟡 Minikube no está corriendo. Iniciando...${NC}"
+  minikube start
+else
+  echo -e "${GREEN}✅ Minikube ya está activo${NC}"
 fi
 
-# 2. Establecer Docker env para usar imágenes locales
-eval $(minikube docker-env)
+# 2. Configurar entorno Docker para Minikube
+eval "$(minikube docker-env)"
+echo -e "${GREEN}🐳 Docker ahora apunta al daemon de Minikube${NC}"
 
-# 3. Obtener IP de Minikube (solo para referencia)
+# 3. Obtener IP de Minikube
 MINIKUBE_IP=$(minikube ip)
-echo "📌 IP de Minikube: $MINIKUBE_IP"
+echo -e "${GREEN}📌 IP de Minikube: $MINIKUBE_IP${NC}"
 
 # 4. Habilitar Ingress si no está activo
 if ! minikube addons list | grep ingress | grep -q enabled; then
-    echo "⚙️ Habilitando addon de Ingress en Minikube..."
-    minikube addons enable ingress
+  echo -e "${YELLOW}⚙️ Habilitando addon de Ingress...${NC}"
+  minikube addons enable ingress
 else
-    echo "✅ Ingress ya está habilitado en Minikube"
+  echo -e "${GREEN}✅ Ingress ya está habilitado${NC}"
 fi
 
-# 5. Verificar y agregar entrada a /etc/hosts si falta
-HOST_ENTRY="127.0.0.1 atales.local"
+# 5. Verificar /etc/hosts
+HOST_ENTRY="$(minikube ip) atales.local"
 if ! grep -q "atales.local" /etc/hosts; then
-    echo "🔧 Agregando atales.local a /etc/hosts (requiere permisos sudo)"
-    echo "$HOST_ENTRY" | sudo tee -a /etc/hosts > /dev/null
+  echo -e "${YELLOW}🔧 Agregando entrada a /etc/hosts (requiere sudo)...${NC}"
+  if echo "$HOST_ENTRY" | sudo tee -a /etc/hosts > /dev/null; then
+    echo -e "${GREEN}✅ Entrada agregada exitosamente${NC}"
+  else
+    echo -e "${RED}❌ Error al modificar /etc/hosts. Hacelo manualmente si es necesario.${NC}"
+  fi
 else
-    echo "✅ atales.local ya está presente en /etc/hosts"
+  echo -e "${GREEN}✅ Entrada atales.local ya existe en /etc/hosts${NC}"
 fi
 
-# 6. Construir imágenes Docker para backend y frontend
-echo "🔨 Construyendo imágenes Docker..."
+# 6. Construcción de imágenes Docker
+BACKEND_PATH="../proyecto-Atales"
+FRONTEND_PATH="../proyecto-Atales/frontend"
 
-cd ../proyecto-Atales
+echo -e "${GREEN}🔨 Construyendo imágenes Docker...${NC}"
 
-echo "📦 Backend:"
-docker build -t backend-atales:latest .
+echo -e "${GREEN}📦 Backend:${NC}"
+docker build -t backend-atales:latest "$BACKEND_PATH"
 
-echo "📦 Frontend:"
-cd frontend
-docker build -t frontend-atales:latest .
-cd ../..
+echo -e "${GREEN}📦 Frontend:${NC}"
+docker build -t frontend-atales:latest "$FRONTEND_PATH"
 
-cd infrastructura-Atales
+# 7. Aplicar manifiestos con Kustomize
+echo -e "${GREEN}📦 Aplicando manifiestos Kubernetes (overlay dev)...${NC}"
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.14.3/cert-manager.yaml
+kubectl apply -k overlays/dev
 
-# 7. Aplicar manifiestos de Kubernetes
-echo "📦 Aplicando manifiestos de Kubernetes..."
-
-kubectl apply -f namespace-dev.yaml
-kubectl apply -n dev -f secret-backend.yaml
-kubectl apply -n dev -f configmap-backend.yaml
-kubectl apply -n dev -f pvc-mysql.yaml
-kubectl apply -n dev -f service-mysql.yaml
-kubectl apply -n dev -f deployment-mysql.yaml
-kubectl apply -n dev -f service-backend.yaml
-kubectl apply -n dev -f deployment-backend.yaml
-kubectl apply -n dev -f service-frontend.yaml
-kubectl apply -n dev -f deployment-frontend.yaml
-kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.11.0/cert-manager.yaml
-kubectl apply -f letsencrypt-prod.yaml
-kubectl apply -n dev -f ingress.yaml
-
-
-echo "✅ Todos los recursos fueron aplicados correctamente."
-
-echo ""
-echo "📂 Recursos actuales en el namespace dev:"
+# 8. Ver recursos desplegados
+echo -e "${GREEN}\n📂 Recursos en namespace dev:${NC}"
 kubectl get all -n dev
 
-echo ""
-echo "🌐 Accedé a tu aplicación en el navegador:"
+# 9. Recordatorio de acceso
+echo -e "${GREEN}\n🌐 Accedé a la app en el navegador:${NC}"
 echo "   https://atales.local"
 
-echo ""
-echo "ℹ️ Importante: ejecutá esto en otra terminal para habilitar la red de Ingress:"
+echo -e "${YELLOW}\nℹ️ Ejecutá esto en otra terminal para exponer el Ingress:${NC}"
 echo "   minikube tunnel"
-

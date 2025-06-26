@@ -1,5 +1,0 @@
-namespace: prod
-
-resources:
-  - ../../../base/business-service
-

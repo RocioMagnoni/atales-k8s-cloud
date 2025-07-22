@@ -7,4 +7,4 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: rociomagnoni/frontend-atales:REPLACEME
+          image: rociomagnoni/frontend-atales:f8de30c

@@ -8,3 +8,5 @@ resources:
 
 patchesStrategicMerge:
   - configmap-backend.yaml
+  - patch-backend-deployment.yaml
+  - patch-frontend-deployment.yaml

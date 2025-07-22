@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend
+  name: backend-deployment
   labels:
     app: backend
 spec:
@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: luca011/backend-atales:latest
+          image: rociomagnoni/backend-atales:REPLACEME
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000

@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: frontend
+  name: frontend-deployment
   labels:
     app: frontend
 spec:
@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: luca011/frontend-atales:latest
+          image: rociomagnoni/frontend-atales:REPLACEME
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80

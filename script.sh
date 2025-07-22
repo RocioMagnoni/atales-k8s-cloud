@@ -14,7 +14,7 @@ echo -e "${GREEN}🌐 Iniciando despliegue del entorno dev en Minikube...${NC}"
 # 1. Verificar si Minikube está activo
 if ! minikube status > /dev/null 2>&1; then
   echo -e "${YELLOW}🟡 Minikube no está corriendo. Iniciando...${NC}"
-  minikube start
+  minikube start --memory=2500 --cpus=2 --profile=atales-dev
 else
   echo -e "${GREEN}✅ Minikube ya está activo${NC}"
 fi
@@ -49,21 +49,33 @@ else
 fi
 
 # 6. Construcción de imágenes Docker
-BACKEND_PATH="../proyecto-Atales"
-FRONTEND_PATH="../proyecto-Atales/frontend"
+BACKEND_PATH="../atales-code-cloud"
+FRONTEND_PATH="../atales-code-cloud/frontend"
+
+# Validación de rutas
+if [ ! -f "$BACKEND_PATH/Dockerfile" ]; then
+  echo -e "${RED}❌ No se encontró el Dockerfile del backend en $BACKEND_PATH${NC}"
+  exit 1
+fi
+
+if [ ! -f "$FRONTEND_PATH/Dockerfile" ]; then
+  echo -e "${RED}❌ No se encontró el Dockerfile del frontend en $FRONTEND_PATH${NC}"
+  exit 1
+fi
 
 echo -e "${GREEN}🔨 Construyendo imágenes Docker...${NC}"
 
 echo -e "${GREEN}📦 Backend:${NC}"
-docker build -t backend-atales:latest "$BACKEND_PATH"
+docker build -t backend-atales:REPLACEME "$BACKEND_PATH"
 
 echo -e "${GREEN}📦 Frontend:${NC}"
-docker build -t frontend-atales:latest "$FRONTEND_PATH"
+docker build -t frontend-atales:REPLACEME "$FRONTEND_PATH"
 
-# 7. Aplicar manifiestos con Kustomize
+# 7. Aplicar manifiestos con Kustomize en namespace dev
 echo -e "${GREEN}📦 Aplicando manifiestos Kubernetes (overlay dev)...${NC}"
+kubectl create namespace dev --dry-run=client -o yaml | kubectl apply -f -
 kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.14.3/cert-manager.yaml
-kubectl apply -k overlays/dev
+kubectl apply -k overlays/dev -n dev
 
 # 8. Ver recursos desplegados
 echo -e "${GREEN}\n📂 Recursos en namespace dev:${NC}"

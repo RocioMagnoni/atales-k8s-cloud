@@ -4,7 +4,7 @@ resources:
   - ../../base
   - namespace.yaml
   - ingress.yaml
-  - letsencrypt-prod.yaml
+  - backend-secrets.yaml
 
 patchesStrategicMerge:
   - configmap-backend.yaml

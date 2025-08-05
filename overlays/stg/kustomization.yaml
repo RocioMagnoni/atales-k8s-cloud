@@ -9,5 +9,4 @@ resources:
 patchesStrategicMerge:
   - patch-backend-deployment.yaml
   - patch-frontend-deployment.yaml
-  - patch-secret.yaml
   - patch-configmap.yaml

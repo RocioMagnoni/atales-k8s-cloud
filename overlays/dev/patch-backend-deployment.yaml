@@ -1,10 +1,11 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend-deployment
+  name: backend-deployment #atales <--cambie por el nombre de el del deployment base
 spec:
   template:
     spec:
       containers:
-        - name: backend
-          image: rociomagnoni/backend-atales:69d9c34
+        - name: backend #atales <--- aca tambien
+          image: rociomagnoni/atales-backend1:REPLACEME
+

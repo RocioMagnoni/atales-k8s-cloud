@@ -1,10 +1,12 @@
+# infra/base/kustomization.yaml
 resources:
-  - deployment-backend.yaml
-  - deployment-frontend.yaml
-  - deployment-mysql.yaml
-  - service-backend.yaml
-  - service-frontend.yaml
-  - service-mysql.yaml
-  - pvc-mysql.yaml
-  - configmap-backend.yaml
-  - hpa-backend.yaml
+  - backend-deployment.yaml
+  - backend-service.yaml
+  - frontend-deployment.yaml
+  - frontend-service.yaml
+  - ingress.yaml
+  - secret.yaml
+  - configmap.yaml
+  
+  
+

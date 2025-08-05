@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deployment
+spec:
+  replicas: 3
+  template:
+    spec:
+      containers:
+        - name: backend
+          image: rociomagnoni/atales-backend1:REPLACEME
+          resources:
+            requests:
+              cpu: "100m" #0,1 CPU reservado requests
+              memory: "128Mi" #medmoria reservada
+            limits:
+              cpu: "500m" #0,5 CPU reservado limits
+              memory: "512Mi" #memoria tope

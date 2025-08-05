@@ -1,12 +1,12 @@
-namespace: dev
+# overlays/dev/kustomization.yaml
+namespace: ambiente-atales-dev
+
 
 resources:
   - ../../base
-  - namespace.yaml
-  - ingress.yaml
-  - backend-secrets.yaml
 
 patchesStrategicMerge:
-  - configmap-backend.yaml
   - patch-backend-deployment.yaml
   - patch-frontend-deployment.yaml
+  - patch-secret.yaml
+  - patch-configmap.yaml

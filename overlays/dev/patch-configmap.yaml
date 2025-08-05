@@ -3,5 +3,4 @@ kind: ConfigMap
 metadata:
   name: backend-config
 data:
-  FRONTEND_HOST: "frontend-service"
-  FRONTEND_PORT: "30080"
+  NODE_ENV: development #para definir el entorno en node.js

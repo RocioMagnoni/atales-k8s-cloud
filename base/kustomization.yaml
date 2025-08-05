@@ -7,6 +7,9 @@ resources:
   - ingress.yaml
   - secret.yaml
   - configmap.yaml
+  - deployment-mysql.yaml
+  - service-mysql.yaml
+  - pvc-mysql.yaml
   
   
 

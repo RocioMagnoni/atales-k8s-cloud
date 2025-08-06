@@ -8,7 +8,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: rociomagnoni/atales-backend1:prod-9b1a1ba
+          image: rociomagnoni/atales-backend1:prod-7c47b54
           resources:
             requests:
               cpu: "200m" #0,2 CPU reservado requests
